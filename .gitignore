@@ -38,3 +38,6 @@ classes/
 
 # Container Compose Volume Directory
 .compose
+
+# Metals
+metals.sbt
