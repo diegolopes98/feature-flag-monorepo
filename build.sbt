@@ -1,16 +1,15 @@
-name := "feature-flag"
-
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
-ThisBuild / scalaVersion := "3.6.4"
+ThisBuild / version                      := "0.1.0-SNAPSHOT"
+ThisBuild / scalaVersion                 := "3.6.4"
+ThisBuild / organization                 := "dev.diegolopes"
+ThisBuild / organizationName             := "Diego Lopes"
+ThisBuild / packageDoc / publishArtifact := false
 
 enablePlugins(ScalafmtPlugin)
 
-lazy val root = (project in file("."))
-  .enablePlugins(NativeImagePlugin)
+lazy val domain = (project in file("domain"))
+  .settings(name := "domain")
   .settings(Settings.compilerOptions)
-  .settings(Settings.nativeOptions)
-  .settings(Settings.dependencies)
+  .settings(Settings.domainDependencies)
 
 coverageFailOnMinimum           := true
 coverageExcludedPackages        := "<empty>"

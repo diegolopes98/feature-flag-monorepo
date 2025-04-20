@@ -8,5 +8,5 @@ object Dependencies {
     munit
   )
 
-  val rootDeps: Seq[ModuleID] = munitDeps
+  val domainDeps: Seq[ModuleID] = munitDeps
 }
