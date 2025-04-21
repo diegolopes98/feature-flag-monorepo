@@ -41,3 +41,4 @@ classes/
 
 # Metals
 metals.sbt
+sbt-launch.jar
