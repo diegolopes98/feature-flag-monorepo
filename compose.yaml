@@ -30,18 +30,27 @@ services:
       - ${COMPOSE_PROJECT_DIR}/.compose/redis:/data
 
   zookeeper:
+    user: root
     image: confluentinc/cp-zookeeper:7.9.0
     container_name: ff-zookeeper
     restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok"
     ports:
       - "2181:2181"
     volumes:
-      - ${COMPOSE_PROJECT_DIR}/.compose/zookeeper:/var/lib/zookeeper/data
+      - ${COMPOSE_PROJECT_DIR}/.compose/zookeeper/data:/var/lib/zookeeper/data
+      - ${COMPOSE_PROJECT_DIR}/.compose/zookeeper/log:/var/lib/zookeeper/log
+    healthcheck:
+      test: [ "CMD-SHELL", "echo ruok | timeout 2 nc 127.0.0.1 2181 || exit 1" ]
+      interval: 5s
+      timeout: 1s
+      retries: 5
 
   kafka:
+    user: root
     image: confluentinc/cp-kafka:7.9.0
     container_name: ff-kafka
     restart: always
@@ -49,16 +58,49 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
+    mem_reservation: 1GB
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: ff-zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_HOURS: 24
-      KAFKA_MESSAGE_MAX_BYTES: 10485760
-      KAFKA_REPLICA_FETCH_MAX_BYTES: 10485760
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_CREATE_TOPICS: |
         feature-flags
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        (echo 'Waiting for Kafka to be ready...'
+        cub kafka-ready -b kafka:9092 1 30
+        for topic in $$KAFKA_CREATE_TOPICS;
+        do
+          echo "Creating $$topic..."
+          kafka-topics --create --if-not-exists --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --topic $$topic
+        done;)&
+        /etc/confluent/docker/run
     volumes:
       - ${COMPOSE_PROJECT_DIR}/.compose/kafka:/var/lib/kafka/data
+
+  akhq:
+    image: tchiotludo/akhq:0.25.1
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            local:
+              properties:
+                bootstrap.servers: "kafka:9092"
+          topic-data:
+            sort: NEWEST
+    ports:
+      - "8000:8080"
+    depends_on:
+      - kafka
+      - zookeeper
