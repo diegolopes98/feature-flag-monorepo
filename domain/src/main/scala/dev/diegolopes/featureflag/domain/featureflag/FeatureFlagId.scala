@@ -10,14 +10,14 @@ object FeatureFlagId {
 
   def from(id: String): Option[FeatureFlagId] =
     Try(UUID.fromString(id)) match {
-      case scala.util.Success(value) => Some(value.asInstanceOf[FeatureFlagId])
+      case scala.util.Success(value) => Some(value)
       case scala.util.Failure(_)     => None
     }
 
-  def from(id: UUID): Type = id
+  def from(id: UUID): FeatureFlagId = id
 
-  extension (id: Type) {
-    def value: Type      = id
-    def toString: String = id.toString
+  extension (id: FeatureFlagId) {
+    def value: FeatureFlagId = id
+    def toString: String     = id.toString
   }
 }
