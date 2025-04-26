@@ -1,9 +1,17 @@
 package dev.diegolopes.featureflag.domain.featureflag
 
+import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.InvalidId
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagId
-import dev.diegolopes.featureflag.domain.UpperSnakeCaseString
 
 final case class FeatureFlag(
     id: FeatureFlagId,
-    name: UpperSnakeCaseString
+    name: String
 )
+
+object FeatureFlag {
+  def apply(id: String, name: String): Either[List[FeatureFlagError], FeatureFlag] =
+    for {
+      _        <- FeatureFlagValidator.validate(id, name).toEither
+      parsedId <- FeatureFlagId.from(id).toRight(List(InvalidId))
+    } yield FeatureFlag(parsedId, name)
+}
