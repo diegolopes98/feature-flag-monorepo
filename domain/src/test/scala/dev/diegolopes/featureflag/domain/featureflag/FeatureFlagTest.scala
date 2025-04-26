@@ -12,8 +12,18 @@ import java.util.UUID
 
 class FeatureFlagTest extends FunSuite {
 
-  test("should create FeatureFlag when id and name are valid") {
+  test("should create FeatureFlag when id as string and name are valid") {
     val givenId   = UUID.randomUUID().toString
+    val givenName = "VALID_NAME"
+
+    val actualOutput = FeatureFlag(givenId, givenName)
+
+    assertEquals(actualOutput.isRight, true)
+    assert(actualOutput.exists(flag => flag.name == givenName))
+  }
+
+  test("should create FeatureFlag when id as UUID and name are valid") {
+    val givenId   = UUID.randomUUID()
     val givenName = "VALID_NAME"
 
     val actualOutput = FeatureFlag(givenId, givenName)
