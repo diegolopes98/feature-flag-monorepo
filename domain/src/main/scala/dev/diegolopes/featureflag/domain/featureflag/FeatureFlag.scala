@@ -7,18 +7,19 @@ import java.util.UUID
 
 final case class FeatureFlag(
     id: FeatureFlagId,
-    name: String
+    name: String,
+    value: Boolean
 )
 
 object FeatureFlag {
-  def apply(id: String, name: String): Either[List[FeatureFlagError], FeatureFlag] =
+  def apply(id: String, name: String, value: Boolean): Either[List[FeatureFlagError], FeatureFlag] =
     for {
       _        <- FeatureFlagValidator.validate(id, name).toEither
       parsedId <- FeatureFlagId.from(id).toRight(List(InvalidId))
-    } yield FeatureFlag(parsedId, name)
+    } yield FeatureFlag(parsedId, name, value)
 
-  def apply(id: UUID, name: String): Either[List[FeatureFlagError], FeatureFlag] =
+  def apply(id: UUID, name: String, value: Boolean): Either[List[FeatureFlagError], FeatureFlag] =
     for {
       _ <- FeatureFlagValidator.validate(id, name).toEither
-    } yield FeatureFlag(FeatureFlagId.from(id), name)
+    } yield FeatureFlag(FeatureFlagId.from(id), name, value)
 }
