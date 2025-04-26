@@ -19,7 +19,7 @@ class FeatureFlagTest extends FunSuite {
     val actualOutput = FeatureFlag(givenId, givenName)
 
     assertEquals(actualOutput.isRight, true)
-    assert(actualOutput.exists(flag => flag.name == givenName))
+    assert(actualOutput.exists(flag => flag.id.toString == givenId && flag.name == givenName))
   }
 
   test("should create FeatureFlag when id as UUID and name are valid") {
@@ -29,7 +29,7 @@ class FeatureFlagTest extends FunSuite {
     val actualOutput = FeatureFlag(givenId, givenName)
 
     assertEquals(actualOutput.isRight, true)
-    assert(actualOutput.exists(flag => flag.name == givenName))
+    assert(actualOutput.exists(flag => flag.id == givenId && flag.name == givenName))
   }
 
   test("should fail when id is invalid UUID") {

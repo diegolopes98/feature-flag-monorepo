@@ -15,9 +15,4 @@ object FeatureFlagId {
     }
 
   def from(id: UUID): FeatureFlagId = id
-
-  extension (id: FeatureFlagId) {
-    def value: FeatureFlagId = id
-    def toString: String     = id.toString
-  }
 }
