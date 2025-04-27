@@ -1,6 +1,7 @@
 package dev.diegolopes.featureflag.domain.featureflag
 
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.{
+  InvalidDescriptionLength,
   InvalidEmptyName,
   InvalidNameLength,
   InvalidUpperSnakeCaseName
@@ -15,6 +16,19 @@ class FeatureFlagTest extends FunSuite {
     val givenId           = UUID.randomUUID()
     val givenName         = "VALID_NAME"
     val givenDescription  = None
+    val givenValue        = true
+    val givenActiveStatus = true
+
+    val actualOutput = FeatureFlag(givenId, givenName, givenDescription, givenValue, givenActiveStatus)
+
+    assertEquals(actualOutput.isRight, true)
+    assert(actualOutput.exists(flag => flag.id == givenId && flag.name == givenName))
+  }
+
+  test("should create FeatureFlag when properties are valid including description") {
+    val givenId           = UUID.randomUUID()
+    val givenName         = "VALID_NAME"
+    val givenDescription  = Some("Testing description")
     val givenValue        = true
     val givenActiveStatus = true
 
@@ -88,6 +102,26 @@ class FeatureFlagTest extends FunSuite {
 
     assertEquals(actualOutput.isLeft, true)
     assert(actualOutput.left.exists(errors => errors.exists(_.isInstanceOf[InvalidUpperSnakeCaseName.type])))
+  }
+
+  test("Should fail when description is too long") {
+    val givenId           = UUID.randomUUID()
+    val givenName         = "VALID_NAME"
+    val givenDescription  = Some("*" * 513)
+    val givenValue        = true
+    val givenActiveStatus = true
+
+    val actualOutput = FeatureFlag(givenId, givenName, givenDescription, givenValue, givenActiveStatus)
+
+    assertEquals(actualOutput.isLeft, true)
+    assert(
+      actualOutput.left.exists(errors =>
+        errors.exists {
+          case InvalidDescriptionLength(_) => true
+          case _                           => false
+        }
+      )
+    )
   }
 
   test("should collect multiple errors when both id and name are invalid") {
