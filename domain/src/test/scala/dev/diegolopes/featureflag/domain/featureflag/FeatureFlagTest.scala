@@ -38,6 +38,34 @@ class FeatureFlagTest extends FunSuite {
     assert(actualOutput.exists(flag => flag.id == givenId && flag.name == givenName))
   }
 
+  test("should activate FeatureFlag properly") {
+    val givenId           = UUID.randomUUID()
+    val givenName         = "VALID_NAME"
+    val givenDescription  = None
+    val givenValue        = false
+    val givenActiveStatus = true
+
+    val actualOutput = FeatureFlag(givenId, givenName, givenDescription, givenValue, givenActiveStatus)
+
+    assertEquals(actualOutput.isRight, true)
+
+    assertEquals(actualOutput.map(_.activate).map(_.active).getOrElse(false), true)
+  }
+
+  test("should deactivate FeatureFlag properly") {
+    val givenId           = UUID.randomUUID()
+    val givenName         = "VALID_NAME"
+    val givenDescription  = None
+    val givenValue        = true
+    val givenActiveStatus = true
+
+    val actualOutput = FeatureFlag(givenId, givenName, givenDescription, givenValue, givenActiveStatus)
+
+    assertEquals(actualOutput.isRight, true)
+
+    assertEquals(actualOutput.map(_.deactivate).map(_.active).getOrElse(true), false)
+  }
+
   test("should fail when name is empty") {
     val givenId           = UUID.randomUUID()
     val givenName         = ""
