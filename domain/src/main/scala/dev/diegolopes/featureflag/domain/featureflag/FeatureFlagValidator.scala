@@ -1,6 +1,7 @@
 package dev.diegolopes.featureflag.domain.featureflag
 
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.{
+  InvalidDescriptionLength,
   InvalidEmptyName,
   InvalidId,
   InvalidNameLength,
@@ -14,17 +15,20 @@ import java.util.UUID
 object FeatureFlagValidator {
   private val NAME_MIN_LENGTH = 3
   private val NAME_MAX_LENGTH = 50
+  private val DESC_MAX_LENGTH = 512
 
-  def validate(id: UUID, name: String): Validation[FeatureFlagError] =
+  def validate(id: UUID, name: String, description: Option[String]): Validation[FeatureFlagError] =
     combine(
       validateId(id),
-      validateName(name)
+      validateName(name),
+      validateDescription(description)
     )
 
-  def validate(id: String, name: String): Validation[FeatureFlagError] =
+  def validate(id: String, name: String, description: Option[String]): Validation[FeatureFlagError] =
     combine(
       validateId(id),
-      validateName(name)
+      validateName(name),
+      validateDescription(description)
     )
 
   private def validateId(id: UUID): Validation[FeatureFlagError] =
@@ -54,5 +58,12 @@ object FeatureFlagValidator {
 
   private def validateNameIsUpperSnakeCase(name: String): Validation[FeatureFlagError] =
     if (!name.matches("^[A-Z0-9]+(_[A-Z0-9]+)*$")) Invalid(List(InvalidUpperSnakeCaseName))
+    else Valid
+
+  private def validateDescription(description: Option[String]): Validation[FeatureFlagError] =
+    description.map(validateDescriptionLength).getOrElse(Valid)
+
+  private def validateDescriptionLength(description: String): Validation[FeatureFlagError] =
+    if (description.length > DESC_MAX_LENGTH) Invalid(List(InvalidDescriptionLength(DESC_MAX_LENGTH)))
     else Valid
 }

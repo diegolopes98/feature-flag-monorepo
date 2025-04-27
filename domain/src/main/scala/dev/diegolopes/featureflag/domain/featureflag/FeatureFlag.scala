@@ -24,6 +24,6 @@ object FeatureFlag {
       active: Boolean
   ): Either[List[FeatureFlagError], FeatureFlag] =
     for {
-      _ <- FeatureFlagValidator.validate(id, name).toEither
+      _ <- FeatureFlagValidator.validate(id, name, description).toEither
     } yield FeatureFlag(FeatureFlagId.from(id), name, description, value, active)
 }
