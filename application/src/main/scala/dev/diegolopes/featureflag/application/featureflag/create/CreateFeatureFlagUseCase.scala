@@ -18,7 +18,17 @@ case class CreateFeatureFlagUseCase(
     } yield ()
 
   private def createFlag(input: CreateFeatureFlagInput) =
-    ZIO.fromEither(FeatureFlag(UUID.randomUUID(), input.name, input.value)).mapError(ValidationError(_))
+    ZIO
+      .fromEither(
+        FeatureFlag(
+          id = UUID.randomUUID(),
+          name = input.name,
+          description = input.description,
+          value = input.value,
+          active = true
+        )
+      )
+      .mapError(ValidationError(_))
 
   private def saveFlag(flag: FeatureFlag) =
     writingFeatureFlag.save(flag).catchAllDefect(d => ZIO.fail(InternalError(d)))
