@@ -1,7 +1,6 @@
 package dev.diegolopes.featureflag.domain.featureflag
 
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.{
-  InvalidId,
   InvalidEmptyName,
   InvalidNameLength,
   InvalidUpperSnakeCaseName
@@ -12,18 +11,7 @@ import java.util.UUID
 
 class FeatureFlagTest extends FunSuite {
 
-  test("should create FeatureFlag when id as string and name are valid") {
-    val givenId    = UUID.randomUUID().toString
-    val givenName  = "VALID_NAME"
-    val givenValue = true
-
-    val actualOutput = FeatureFlag(givenId, givenName, givenValue)
-
-    assertEquals(actualOutput.isRight, true)
-    assert(actualOutput.exists(flag => flag.id.toString == givenId && flag.name == givenName))
-  }
-
-  test("should create FeatureFlag when id as UUID and name are valid") {
+  test("should create FeatureFlag when properties are valid") {
     val givenId    = UUID.randomUUID()
     val givenName  = "VALID_NAME"
     val givenValue = true
@@ -34,19 +22,8 @@ class FeatureFlagTest extends FunSuite {
     assert(actualOutput.exists(flag => flag.id == givenId && flag.name == givenName))
   }
 
-  test("should fail when id is invalid UUID") {
-    val givenId    = "not-a-uuid"
-    val givenName  = "VALID_NAME"
-    val givenValue = true
-
-    val actualOutput = FeatureFlag(givenId, givenName, givenValue)
-
-    assertEquals(actualOutput.isLeft, true)
-    assert(actualOutput.left.exists(errors => errors.contains(InvalidId)))
-  }
-
   test("should fail when name is empty") {
-    val givenId    = UUID.randomUUID().toString
+    val givenId    = UUID.randomUUID()
     val givenName  = ""
     val givenValue = true
 
@@ -57,7 +34,7 @@ class FeatureFlagTest extends FunSuite {
   }
 
   test("should fail when name is too short") {
-    val givenId    = UUID.randomUUID().toString
+    val givenId    = UUID.randomUUID()
     val givenName  = "AB"
     val givenValue = true
 
@@ -75,7 +52,7 @@ class FeatureFlagTest extends FunSuite {
   }
 
   test("should fail when name is too long") {
-    val givenId    = UUID.randomUUID().toString
+    val givenId    = UUID.randomUUID()
     val givenName  = "A" * 51
     val givenValue = true
 
@@ -93,7 +70,7 @@ class FeatureFlagTest extends FunSuite {
   }
 
   test("should fail when name is not in upper snake case format") {
-    val givenId    = UUID.randomUUID().toString
+    val givenId    = UUID.randomUUID()
     val givenName  = "invalidName"
     val givenValue = true
 
@@ -104,16 +81,15 @@ class FeatureFlagTest extends FunSuite {
   }
 
   test("should collect multiple errors when both id and name are invalid") {
-    val givenId    = "invalid-uuid"
-    val givenName  = "bad name"
+    val givenId    = UUID.randomUUID()
+    val givenName  = "er"
     val givenValue = true
 
     val actualOutput = FeatureFlag(givenId, givenName, givenValue)
 
     assertEquals(actualOutput.isLeft, true)
-    assert(actualOutput.left.exists { errors =>
-      errors.exists(_.isInstanceOf[InvalidId.type]) &&
-      errors.exists(_.isInstanceOf[InvalidUpperSnakeCaseName.type])
-    })
+    assert(actualOutput.left.exists(errors => errors.length > 1))
+    assert(actualOutput.left.exists(errors => errors.contains(InvalidNameLength(3, 50))))
+    assert(actualOutput.left.exists(errors => errors.contains(InvalidUpperSnakeCaseName)))
   }
 }

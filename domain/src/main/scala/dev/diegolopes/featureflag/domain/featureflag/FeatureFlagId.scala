@@ -8,11 +8,11 @@ opaque type FeatureFlagId = FeatureFlagId.Type
 object FeatureFlagId {
   type Type = UUID
 
-  def from(id: String): Option[FeatureFlagId] =
-    Try(UUID.fromString(id)) match {
-      case scala.util.Success(value) => Some(value)
-      case scala.util.Failure(_)     => None
-    }
-
   def from(id: UUID): FeatureFlagId = id
+
+  def from(id: String): Either[FeatureFlagError.InvalidId.type, FeatureFlagId] =
+    Try(UUID.fromString(id)).toEither match {
+      case Right(validId) => Right(FeatureFlagId.from(validId))
+      case Left(_)        => Left(FeatureFlagError.InvalidId)
+    }
 }

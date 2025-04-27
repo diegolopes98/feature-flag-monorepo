@@ -32,8 +32,8 @@ object FeatureFlagValidator {
 
   private def validateId(id: String): Validation[FeatureFlagError] =
     FeatureFlagId.from(id) match {
-      case Some(_) => Valid
-      case None    => Invalid(List(InvalidId))
+      case Left(_)  => Invalid(List(InvalidId))
+      case Right(_) => Valid
     }
 
   private def validateName(name: String): Validation[FeatureFlagError] =
