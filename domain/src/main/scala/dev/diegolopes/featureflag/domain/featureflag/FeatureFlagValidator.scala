@@ -3,7 +3,6 @@ package dev.diegolopes.featureflag.domain.featureflag
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.{
   InvalidDescriptionLength,
   InvalidEmptyName,
-  InvalidId,
   InvalidNameLength,
   InvalidUpperSnakeCaseName
 }
@@ -24,21 +23,8 @@ object FeatureFlagValidator {
       validateDescription(description)
     )
 
-  def validate(id: String, name: String, description: Option[String]): Validation[FeatureFlagError] =
-    combine(
-      validateId(id),
-      validateName(name),
-      validateDescription(description)
-    )
-
   private def validateId(id: UUID): Validation[FeatureFlagError] =
     Valid
-
-  private def validateId(id: String): Validation[FeatureFlagError] =
-    FeatureFlagId.from(id) match {
-      case Left(_)  => Invalid(List(InvalidId))
-      case Right(_) => Valid
-    }
 
   private def validateName(name: String): Validation[FeatureFlagError] =
     combine(
