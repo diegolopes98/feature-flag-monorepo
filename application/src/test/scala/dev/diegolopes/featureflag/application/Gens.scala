@@ -18,18 +18,22 @@ object Gens {
 
   val validCreateFeatureFlagInput: Gen[Any, CreateFeatureFlagInput] = for {
     name  <- upperSnakeCasedString
+    desc  <- Gen.option(Gen.string)
     value <- Gen.boolean
   } yield CreateFeatureFlagInput(
     name = name,
+    description = desc,
     value = value
   )
 
   def customNameFeatureFlagInput(customNameGen: Gen[Any, String]): Gen[Any, CreateFeatureFlagInput] =
     for {
       name  <- customNameGen
+      desc  <- Gen.option(Gen.string)
       value <- Gen.boolean
     } yield CreateFeatureFlagInput(
       name = name,
+      description = desc,
       value = value
     )
 }
