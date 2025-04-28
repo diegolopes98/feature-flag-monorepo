@@ -70,7 +70,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_CREATE_TOPICS: |
-        feature-flags
+        feature_flag
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
     command:
