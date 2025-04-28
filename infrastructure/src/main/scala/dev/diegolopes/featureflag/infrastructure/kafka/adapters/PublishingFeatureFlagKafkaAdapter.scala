@@ -59,6 +59,6 @@ case class PublishingFeatureFlagKafkaAdapter(
 }
 
 object PublishingFeatureFlagKafkaAdapter {
-  val layer: ZLayer[Producer, Nothing, PublishingFeatureFlagKafkaAdapter] =
+  val layer: ZLayer[Producer, Nothing, PublishingFeatureFlag[Task]] =
     ZLayer.fromFunction(PublishingFeatureFlagKafkaAdapter(_))
 }
