@@ -32,18 +32,22 @@ object Dependencies {
     zioJson
   )
 
-  private val doobieVersion  = "1.0.0-RC9"
+  private val doobieVersion  = "1.0.0-RC8"
   private val doobieCore     = "org.tpolecat" %% "doobie-core"     % doobieVersion
   private val doobieHikari   = "org.tpolecat" %% "doobie-hikari"   % doobieVersion
   private val doobiePostgres = "org.tpolecat" %% "doobie-postgres" % doobieVersion
 
+  private val tranzactIOVersion = "5.3.0"
+  private val tranzactIO        = "io.github.gaelrenoux" %% "tranzactio-doobie" % tranzactIOVersion
+
   private val doobieCoreDeps = Seq(
-    doobieCore
+    doobieCore,
+    doobiePostgres,
+    tranzactIO
   )
 
-  private val doobieTransactionDeps = Seq(
-    doobieHikari,
-    doobiePostgres
+  private val doobieConnectionDeps = Seq(
+    doobieHikari
   )
 
   private val chimneyVersion = "1.7.3"
