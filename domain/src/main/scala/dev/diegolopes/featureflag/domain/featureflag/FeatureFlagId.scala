@@ -8,4 +8,8 @@ object FeatureFlagId {
   type Type = UUID
 
   def from(id: UUID): FeatureFlagId = id
+
+  extension (id: FeatureFlagId) {
+    def value: UUID = id
+  }
 }
