@@ -17,6 +17,12 @@ lazy val application = (project in file("application"))
   .settings(Settings.compilerOptions)
   .settings(Settings.applicationDependencies)
 
+lazy val infrastructure = (project in file("infrastructure"))
+  .dependsOn(domain, application)
+  .settings(name := "infrastructure")
+  .settings(Settings.compilerOptions)
+  .settings(Settings.infrastructureDependencies)
+
 coverageFailOnMinimum           := true
 coverageExcludedPackages        := "<empty>"
 coverageMinimumStmtTotal        := 90
