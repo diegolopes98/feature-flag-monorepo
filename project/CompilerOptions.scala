@@ -17,10 +17,9 @@ object CompilerOptions {
 
   val nativeOptions = Seq(
     "--no-fallback",
-    "--initialize-at-build-time",
+    "--initialize-at-run-time=zio.Runtime$,zio.Unsafe$,zio.internal.Platform$",
     "-H:+ReportExceptionStackTraces",
-    "--enable-http",
-    "--enable-https",
-    "--install-exit-handlers"
+    "--install-exit-handlers",
+    "--enable-url-protocols=http,https"
   )
 }

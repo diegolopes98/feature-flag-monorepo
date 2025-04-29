@@ -4,6 +4,19 @@ ThisBuild / organization                 := "dev.diegolopes"
 ThisBuild / organizationName             := "Diego Lopes"
 ThisBuild / packageDoc / publishArtifact := false
 
+ThisBuild / coverageFailOnMinimum           := true
+ThisBuild / coverageMinimumStmtTotal        := 90
+ThisBuild / coverageMinimumBranchTotal      := 90
+ThisBuild / coverageMinimumStmtPerPackage   := 90
+ThisBuild / coverageMinimumBranchPerPackage := 85
+ThisBuild / coverageMinimumStmtPerFile      := 85
+ThisBuild / coverageMinimumBranchPerFile    := 80
+
+Global / excludeLintKeys ++= Set(
+  nativeImageJvm,
+  nativeImageVersion
+)
+
 enablePlugins(ScalafmtPlugin)
 
 lazy val domain = (project in file("domain"))
@@ -23,11 +36,26 @@ lazy val infrastructure = (project in file("infrastructure"))
   .settings(Settings.compilerOptions)
   .settings(Settings.infrastructureDependencies)
 
-coverageFailOnMinimum           := true
-coverageExcludedPackages        := "<empty>"
-coverageMinimumStmtTotal        := 90
-coverageMinimumBranchTotal      := 90
-coverageMinimumStmtPerPackage   := 90
-coverageMinimumBranchPerPackage := 85
-coverageMinimumStmtPerFile      := 85
-coverageMinimumBranchPerFile    := 80
+lazy val controlPlaneApi = (project in file("driver/control-plane-api"))
+  .dependsOn(domain, application, infrastructure)
+  .enablePlugins(NativeImagePlugin)
+  .settings(name := "control-plane-api", nativeImageVersion := "21.0.2", nativeImageJvm := "graalvm-java21")
+  .settings(Settings.compilerOptions)
+  .settings(Settings.nativeOptions)
+  .settings(Settings.driverApiDependencies)
+
+lazy val dataPlaneApi = (project in file("driver/data-plane-api"))
+  .dependsOn(domain, application, infrastructure)
+  .enablePlugins(NativeImagePlugin)
+  .settings(name := "data-plane-api", nativeImageVersion := "21.0.2", nativeImageJvm := "graalvm-java21")
+  .settings(Settings.compilerOptions)
+  .settings(Settings.nativeOptions)
+  .settings(Settings.driverApiDependencies)
+
+lazy val hydrationConsumer = (project in file("driver/hydration-consumer"))
+  .dependsOn(domain, application, infrastructure)
+  .enablePlugins(NativeImagePlugin)
+  .settings(name := "hydration-consumer", nativeImageVersion := "21.0.2", nativeImageJvm := "graalvm-java21")
+  .settings(Settings.compilerOptions)
+  .settings(Settings.nativeOptions)
+  .settings(Settings.driverConsumerDependencies)
