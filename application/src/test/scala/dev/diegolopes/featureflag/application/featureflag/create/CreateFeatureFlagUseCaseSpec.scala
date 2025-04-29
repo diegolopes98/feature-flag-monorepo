@@ -2,7 +2,7 @@ package dev.diegolopes.featureflag.application.featureflag.create
 
 import dev.diegolopes.featureflag.application.Gens.{customNameFeatureFlagInput, validCreateFeatureFlagInput}
 import dev.diegolopes.featureflag.application.featureflag.create.CreateFeatureFlagError.{InternalError, ValidationError}
-import dev.diegolopes.featureflag.application.stubs.WritingFeatureFlagStub
+import dev.diegolopes.featureflag.application.stubs.{PublishingFeatureFlagStub, WritingFeatureFlagStub}
 import dev.diegolopes.featureflag.domain.featureflag.FeatureFlagError.{
   InvalidEmptyName,
   InvalidNameLength,
@@ -13,45 +13,59 @@ import zio.test.*
 import zio.test.Assertion.*
 
 object CreateFeatureFlagUseCaseSpec extends zio.test.ZIOSpecDefault {
-  private val writingFeatureFlagSuccessEffect = ZIO.unit
-  private val writingFeatureFlagSuccessStub   = WritingFeatureFlagStub.make(writingFeatureFlagSuccessEffect)
+  private val stubsLayer =
+    WritingFeatureFlagStub.layer ++ PublishingFeatureFlagStub.layer
 
-  private val writingFeatureFlagDefectEffect = ZIO.dieMessage("Fake test defect")
-  private val writingFeatureFlagDefectStub   = WritingFeatureFlagStub.make(writingFeatureFlagDefectEffect)
+  private val layer =
+    stubsLayer ++ (stubsLayer >>> CreateFeatureFlagUseCase.layer)
+
+  private val fakeDefect = new RuntimeException("Fake test defect")
 
   override def spec: Spec[TestEnvironment & Scope, Any] =
     suite("CreateFeatureFlagUseCaseSpec")(
-      success.provideLayer(writingFeatureFlagSuccessStub >>> CreateFeatureFlagUseCase.layer),
-      failures.provideLayer(writingFeatureFlagDefectStub >>> CreateFeatureFlagUseCase.layer)
-    ) @@ TestAspect.silentLogging @@ TestAspect.parallel
+      success,
+      failures
+    ).provideLayer(layer) @@ TestAspect.silentLogging @@ TestAspect.parallel
 
   private val success = test("Should successfully create feature flag")(
     check(validCreateFeatureFlagInput) { givenCmd =>
-      ZIO
-        .serviceWithZIO[CreateFeatureFlagUseCase](_.apply(givenCmd))
-        .as(assertCompletes)
+      for {
+        _ <- ZIO.serviceWithZIO[WritingFeatureFlagStub](_.Save(ZIO.unit))
+        _ <- ZIO.serviceWithZIO[PublishingFeatureFlagStub](_.Created(ZIO.unit))
+        _ <- ZIO.serviceWithZIO[CreateFeatureFlagUseCase](_.execute(givenCmd))
+      } yield assertCompletes
     }
   )
 
   private val failures = suite("Should fail with...")(
     test("ValidationFailure") {
       check(customNameFeatureFlagInput(Gen.string.resize(1).map(_.toLowerCase))) { givenCmd =>
+        val execution = ZIO.serviceWithZIO[CreateFeatureFlagUseCase](_.execute(givenCmd))
+
         assertZIO(
-          ZIO
-            .serviceWithZIO[CreateFeatureFlagUseCase](_.apply(givenCmd))
-            .exit
+          execution.exit
         )(fails(equalTo(ValidationError(List(InvalidEmptyName, InvalidNameLength(3, 50), InvalidUpperSnakeCaseName)))))
       }
     },
-    test("InternalError") {
+    test("InternalError when WritingFeatureFlag dies") {
       check(validCreateFeatureFlagInput) { givenCmd =>
-        assertZIO(
-          ZIO
-            .serviceWithZIO[CreateFeatureFlagUseCase](_.apply(givenCmd))
-            .exit
-        )(
-          fails(isSubtype[InternalError](hasField("message", _.cause.getMessage, equalTo("Fake test defect"))))
-        )
+        val execution = for {
+          _ <- ZIO.serviceWithZIO[WritingFeatureFlagStub](_.Save(ZIO.die(fakeDefect)))
+          _ <- ZIO.serviceWithZIO[CreateFeatureFlagUseCase](_.execute(givenCmd))
+        } yield ()
+
+        assertZIO(execution.exit)(fails(equalTo(InternalError(fakeDefect))))
+      }
+    },
+    test("InternalError when PublishingFeatureFlag dies") {
+      check(validCreateFeatureFlagInput) { givenCmd =>
+        val execution = for {
+          _ <- ZIO.serviceWithZIO[WritingFeatureFlagStub](_.Save(ZIO.unit))
+          _ <- ZIO.serviceWithZIO[PublishingFeatureFlagStub](_.Created(ZIO.die(fakeDefect)))
+          _ <- ZIO.serviceWithZIO[CreateFeatureFlagUseCase](_.execute(givenCmd))
+        } yield ()
+
+        assertZIO(execution.exit)(fails(equalTo(InternalError(fakeDefect))))
       }
     }
   )
