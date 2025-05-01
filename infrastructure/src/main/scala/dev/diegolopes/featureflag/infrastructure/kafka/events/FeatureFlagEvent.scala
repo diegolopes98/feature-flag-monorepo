@@ -28,12 +28,12 @@ object FeatureFlagEvent {
       value: Boolean
   ) extends FeatureFlagEvent
 
-  implicit val idEncoder: JsonEncoder[FeatureFlagId] =
+  given idEncoder: JsonEncoder[FeatureFlagId] =
     JsonEncoder[String].contramap(_.toString)
 
-  implicit val idDecoder: JsonDecoder[FeatureFlagId] =
+  given idDecoder: JsonDecoder[FeatureFlagId] =
     JsonDecoder[String].map(uuidStr => FeatureFlagId.from(UUID.fromString(uuidStr)))
 
-  implicit val encoder: JsonEncoder[FeatureFlagEvent] = DeriveJsonEncoder.gen[FeatureFlagEvent]
-  implicit val decoder: JsonDecoder[FeatureFlagEvent] = DeriveJsonDecoder.gen[FeatureFlagEvent]
+  given encoder: JsonEncoder[FeatureFlagEvent] = DeriveJsonEncoder.gen[FeatureFlagEvent]
+  given decoder: JsonDecoder[FeatureFlagEvent] = DeriveJsonDecoder.gen[FeatureFlagEvent]
 }
