@@ -1,8 +1,13 @@
 package dev.diegolopes.featureflag.control
 
+import dev.diegolopes.featureflag.control.config.ControlPlaneConfig
 import zio.*
-import java.io.IOException
 
 object Main extends ZIOAppDefault {
-  def run: IO[IOException, Unit] = Console.printLine("Hello, World!")
+  private val effect = for {
+    config <- ZIO.service[ControlPlaneConfig]
+    _      <- Console.printLine(config)
+  } yield ()
+
+  def run: Task[Unit] = effect.provideLayer(ControlPlaneConfig.layer)
 }

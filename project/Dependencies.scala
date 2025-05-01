@@ -20,6 +20,12 @@ object Dependencies {
   private val zioJsonVersion = "0.7.42"
   private val zioJson        = "dev.zio" %% "zio-json" % zioJsonVersion
 
+  private val zioConfigVersion  = "4.0.4"
+  private val zioConfig         = "dev.zio" %% "zio-config"          % zioConfigVersion
+  private val zioConfigMagnolia = "dev.zio" %% "zio-config-magnolia" % zioConfigVersion
+  private val zioConfigTypesafe = "dev.zio" %% "zio-config-typesafe" % zioConfigVersion
+  private val zioConfigRefined  = "dev.zio" %% "zio-config-refined"  % zioConfigVersion
+
   private val zioDeps = Seq(
     zio,
     zioTest,
@@ -30,6 +36,13 @@ object Dependencies {
   private val zioKafkaDeps = Seq(
     zioKafka,
     zioJson
+  )
+
+  private val zioConfigDeps = Seq(
+    zioConfig,
+    zioConfigMagnolia,
+    zioConfigTypesafe,
+    zioConfigRefined
   )
 
   private val doobieVersion  = "1.0.0-RC8"
@@ -57,6 +70,15 @@ object Dependencies {
     chimney
   )
 
+  private val tapirVersion = "1.11.25"
+  private val tapirZioHttp = "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"   % tapirVersion
+  private val tapirSwagger = "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion
+
+  private val tapirDeps = Seq(
+    tapirZioHttp,
+    tapirSwagger
+  )
+
   val domainDeps: Seq[ModuleID] = munitDeps
 
   val applicationDeps: Seq[ModuleID] = zioDeps
@@ -64,7 +86,7 @@ object Dependencies {
   val infrastructureDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ chimneyDeps
 
   val driverApiDeps: Seq[ModuleID] =
-    zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps
+    zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps ++ tapirDeps ++ zioConfigDeps
 
   val driverConsumerDeps: Seq[ModuleID] =
     zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps
