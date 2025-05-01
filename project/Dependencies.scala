@@ -26,6 +26,9 @@ object Dependencies {
   private val zioConfigTypesafe = "dev.zio" %% "zio-config-typesafe" % zioConfigVersion
   private val zioConfigRefined  = "dev.zio" %% "zio-config-refined"  % zioConfigVersion
 
+  private val zioInteropCatsVersion = "23.1.0.5"
+  private val zioInteropCats        = "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
+
   private val zioDeps = Seq(
     zio,
     zioTest,
@@ -60,7 +63,8 @@ object Dependencies {
   )
 
   private val doobieConnectionDeps = Seq(
-    doobieHikari
+    doobieHikari,
+    zioInteropCats
   )
 
   private val chimneyVersion = "1.7.3"
@@ -86,8 +90,8 @@ object Dependencies {
   val infrastructureDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ chimneyDeps
 
   val driverApiDeps: Seq[ModuleID] =
-    zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps ++ tapirDeps ++ zioConfigDeps
+    zioDeps ++ zioKafkaDeps ++ zioConfigDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps ++ tapirDeps
 
   val driverConsumerDeps: Seq[ModuleID] =
-    zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps
+    zioDeps ++ zioKafkaDeps ++ zioConfigDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps
 }
