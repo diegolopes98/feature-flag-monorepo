@@ -22,16 +22,6 @@ case class FindingFeatureFlagPostgresAdapter() extends FindingFeatureFlag[[T] =>
     tzio(stmt.query[FeatureFlagRow].option).map(_.map(mapFeatureFlag)).orDie
   }
 
-  override def byName(name: String): URIO[Connection, Option[FeatureFlag]] = {
-    val stmt =
-      sql"""|SELECT ${FeatureFlagRow.columnsAsLast()}
-            |FROM feature_flag
-            |WHERE name = $name
-            |""".stripMargin
-
-    tzio(stmt.query[FeatureFlagRow].option).map(_.map(mapFeatureFlag)).orDie
-  }
-
   private def mapFeatureFlag(ffr: FeatureFlagRow) =
     ffr
       .into[FeatureFlag]
