@@ -28,6 +28,9 @@ object Dependencies {
   private val zioInteropCatsVersion = "23.1.0.5"
   private val zioInteropCats        = "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
 
+  private val zioRedisVersion = "1.1.3"
+  private val zioRedis        = "dev.zio" %% "zio-redis" % zioRedisVersion
+
   private val zioDeps = Seq(
     zio,
     zioTest,
@@ -44,6 +47,10 @@ object Dependencies {
     zioConfig,
     zioConfigMagnolia,
     zioConfigTypesafe
+  )
+
+  private val zioRedisDeps = Seq(
+    zioRedis
   )
 
   private val doobieVersion  = "1.0.0-RC8"
@@ -85,7 +92,7 @@ object Dependencies {
 
   val applicationDeps: Seq[ModuleID] = zioDeps
 
-  val infrastructureDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ chimneyDeps
+  val infrastructureDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ zioRedisDeps ++ doobieCoreDeps ++ chimneyDeps
 
   val platformDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps
 
