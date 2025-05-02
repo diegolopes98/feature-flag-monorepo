@@ -1,6 +1,6 @@
-package dev.diegolopes.featureflag.control.kafka
+package dev.diegolopes.featureflag.platform.kafka
 
-import dev.diegolopes.featureflag.control.config.{ControlPlaneConfig, KafkaConfig}
+import dev.diegolopes.featureflag.platform.config.KafkaConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import zio.kafka.producer.{Producer, ProducerSettings}
 import zio.{ZIO, ZLayer}
@@ -8,8 +8,8 @@ import zio.{ZIO, ZLayer}
 import java.time.Duration
 
 object KafkaProducer {
-  val layer: ZLayer[ControlPlaneConfig, Nothing, Producer] =
-    ZLayer.scoped(ZIO.serviceWithZIO[ControlPlaneConfig](cfg => Producer.make(buildProducerSettings(cfg.kafka)).orDie))
+  val layer: ZLayer[KafkaConfig, Nothing, Producer] =
+    ZLayer.scoped(ZIO.serviceWithZIO[KafkaConfig](cfg => Producer.make(buildProducerSettings(cfg)).orDie))
 
   private def buildProducerSettings(kafka: KafkaConfig) =
     ProducerSettings(

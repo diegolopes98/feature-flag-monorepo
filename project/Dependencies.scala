@@ -89,6 +89,8 @@ object Dependencies {
 
   val infrastructureDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ chimneyDeps
 
+  val platformDeps: Seq[ModuleID] = zioDeps ++ zioKafkaDeps ++ doobieCoreDeps ++ doobieConnectionDeps
+
   val driverApiDeps: Seq[ModuleID] =
     zioDeps ++ zioKafkaDeps ++ zioConfigDeps ++ doobieCoreDeps ++ doobieConnectionDeps ++ chimneyDeps ++ tapirDeps
 
