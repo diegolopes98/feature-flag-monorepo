@@ -4,14 +4,13 @@ import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import dev.diegolopes.featureflag.control.config.{ControlPlaneConfig, DatabaseConfig}
 import doobie.util.log.LogHandler
 import io.github.gaelrenoux.tranzactio.doobie.*
-
-import zio.*
+import zio.{Task, ZLayer}
 import zio.interop.catz.*
 
 object PostgresDatabase {
   given doobieContext: DbContext = DbContext(logHandler = LogHandler.jdkLogHandler[Task])
 
-  val layer: ZLayer[ControlPlaneConfig, Throwable, Database] =
+  val layer: ZLayer[ControlPlaneConfig, Nothing, Database] =
     ZLayer.fromFunction { (cfg: ControlPlaneConfig) =>
       new HikariDataSource(buildHikariConfig(cfg.database))
     } >>> Database.fromDatasource
