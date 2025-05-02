@@ -24,7 +24,6 @@ object Dependencies {
   private val zioConfig         = "dev.zio" %% "zio-config"          % zioConfigVersion
   private val zioConfigMagnolia = "dev.zio" %% "zio-config-magnolia" % zioConfigVersion
   private val zioConfigTypesafe = "dev.zio" %% "zio-config-typesafe" % zioConfigVersion
-  private val zioConfigRefined  = "dev.zio" %% "zio-config-refined"  % zioConfigVersion
 
   private val zioInteropCatsVersion = "23.1.0.5"
   private val zioInteropCats        = "dev.zio" %% "zio-interop-cats" % zioInteropCatsVersion
@@ -44,8 +43,7 @@ object Dependencies {
   private val zioConfigDeps = Seq(
     zioConfig,
     zioConfigMagnolia,
-    zioConfigTypesafe,
-    zioConfigRefined
+    zioConfigTypesafe
   )
 
   private val doobieVersion  = "1.0.0-RC8"
