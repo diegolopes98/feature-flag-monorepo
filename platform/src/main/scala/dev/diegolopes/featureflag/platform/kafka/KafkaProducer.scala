@@ -9,7 +9,7 @@ import java.time.Duration
 
 object KafkaProducer {
   val layer: ZLayer[KafkaConfig, Nothing, Producer] =
-    ZLayer.scoped(ZIO.serviceWithZIO[KafkaConfig](cfg => Producer.make(buildProducerSettings(cfg)).orDie))
+    ZLayer.scoped(ZIO.serviceWithZIO[KafkaConfig](cfg => Producer.make(buildProducerSettings(cfg)))).orDie
 
   private def buildProducerSettings(kafka: KafkaConfig) =
     ProducerSettings(
